@@ -83,7 +83,7 @@ class LiqPay(object):
         response = requests.post(request_url, data=request_data, verify=False)
         return json.loads(response.content)
 
-    def get_form(self, params):
+    def cnb_form(self, params):
         params = self._prepare_params(params)
         params_validator = (
             ('amount', lambda x: x is not None and float(x) > 0),
@@ -117,3 +117,11 @@ class LiqPay(object):
             language=language,
             param_inputs=u'\n\t'.join(inputs)
         )
+
+    def cnb_signature(self, params):
+        params = self._prepare_params(params)
+        signature_values = [to_unicode(params.get(key, u'')) for key in self.SIGNATURE_KEYS]
+        return self._make_signature(*signature_values)
+
+    def str_to_sign(self, str):
+        return base64.b64encode(hashlib.sha1(str).digest())
