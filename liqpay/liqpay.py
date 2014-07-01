@@ -46,14 +46,9 @@ class LiqPay(object):
 </form>'''
     INPUT_TEMPLATE = u'<input type="hidden" name="{name}" value="{value}"/>'
 
-    SUPPORTED_CURRENCIES = ['EUR', 'UAH', 'USD', 'RUB', 'RUR']
     SUPPORTED_PARAMS = [
         'public_key', 'amount', 'currency', 'description', 'order_id',
         'result_url', 'server_url', 'type', 'signature', 'language', 'sandbox'
-    ]
-    SIGNATURE_KEYS = [
-        'private_key', 'amount', 'currency', 'public_key', 'order_id', 'type',
-        'description', 'result_url', 'server_url'
     ]
 
     def __init__(self, public_key, private_key, host='https://www.liqpay.com/api/'):
@@ -87,7 +82,6 @@ class LiqPay(object):
         params = self._prepare_params(params)
         params_validator = (
             ('amount', lambda x: x is not None and float(x) > 0),
-            ('currency', lambda x: x in self.SUPPORTED_CURRENCIES),
             ('description', lambda x: x is not None)
         )
         for key, validator in params_validator:
@@ -105,12 +99,10 @@ class LiqPay(object):
             sandbox=int(bool(params.get('sandbox')))
         )
 
-        signature_values = [to_unicode(params.get(key, u'')) for key in self.SIGNATURE_KEYS]
-        params.update(signature=self._make_signature(*signature_values))
+        params.update(signature=self.cnb_signature(params))
         form_action_url = urljoin(self._host, 'pay/')
         format_input = lambda k, v: self.INPUT_TEMPLATE.format(name=k, value=to_unicode(v))
-        inputs = [format_input(k, v) for k, v in params.iteritems()
-                  if k in self.SUPPORTED_PARAMS]
+        inputs = [format_input(k, v) for k, v in params.iteritems()]
 
         return self.FORM_TEMPLATE.format(
             action=form_action_url,
@@ -120,7 +112,17 @@ class LiqPay(object):
 
     def cnb_signature(self, params):
         params = self._prepare_params(params)
-        signature_values = [to_unicode(params.get(key, u'')) for key in self.SIGNATURE_KEYS]
+        signature_values = [ 
+            self._private_key, 
+            to_unicode(params.get("amount", u'')),
+            to_unicode(params.get("currency", u'')),
+            to_unicode(params.get("public_key", u'')),
+            to_unicode(params.get("order_id", u'')),
+            to_unicode(params.get("type", u'')),
+            to_unicode(params.get("description", u'')),
+            to_unicode(params.get("result_url", u'')),
+            to_unicode(params.get("server_url", u''))
+        ]
         return self._make_signature(*signature_values)
 
     def str_to_sign(self, str):

@@ -32,15 +32,15 @@ class TestLiqPaySimple(unittest.TestCase):
             "description": "тест",
             "test": "cccc"
         }
-        self.assertEqual(self.liqpay.get_form(params), expected_form_out)
+        self.assertEqual(self.liqpay.cnb_form(params), expected_form_out)
 
         # ru symbols in unicode
         params.update(description=u'тест')
-        self.assertEqual(self.liqpay.get_form(params), expected_form_out)
+        self.assertEqual(self.liqpay.cnb_form(params), expected_form_out)
 
         # test gen_form without required param
         del params['amount']
-        self.assertRaises(ParamValidationError, self.liqpay.get_form, params)
+        self.assertRaises(ParamValidationError, self.liqpay.cnb_form, params)
 
 if __name__ == '__main__':
     unittest.main()
