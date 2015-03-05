@@ -22,6 +22,7 @@ class TestLiqPaySimple(unittest.TestCase):
             u'\t<input type="hidden" name="currency" value="UAH"/>\n'
             u'\t<input type="hidden" name="amount" value="3940"/>\n'
             u'\t<input type="hidden" name="signature" value="jkwtxOAipwST6+xFKfleY/4ZES0="/>\n'
+            u'\t<input type="hidden" name="test" value="cccc"/>\n'
             u'    <input type="image" src="//static.liqpay.com/buttons/p1ru.radius.png" name="btn_text" />\n'
             u'</form>'
         )
