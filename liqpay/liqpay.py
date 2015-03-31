@@ -98,12 +98,11 @@ class LiqPay(object):
             currency=currency if currency != 'RUR' else 'RUB',
             sandbox=int(bool(params.get('sandbox')))
         )
-
-        params.update(signature=self.cnb_signature(params))
-        form_action_url = urljoin(self._host, 'pay/')
+        params_templ = {'data': base64.b64encode(json.dumps(params))}
+        params_templ['signature'] = self._make_signature(self._private_key, params_templ['data'], self._private_key)
+        form_action_url = urljoin(self._host, 'checkout/')
         format_input = lambda k, v: self.INPUT_TEMPLATE.format(name=k, value=to_unicode(v))
-        inputs = [format_input(k, v) for k, v in params.iteritems()]
-
+        inputs = [format_input(k, v) for k, v in params_templ.iteritems()]
         return self.FORM_TEMPLATE.format(
             action=form_action_url,
             language=language,
@@ -112,18 +111,8 @@ class LiqPay(object):
 
     def cnb_signature(self, params):
         params = self._prepare_params(params)
-        signature_values = [ 
-            self._private_key, 
-            to_unicode(params.get("amount", u'')),
-            to_unicode(params.get("currency", u'')),
-            to_unicode(params.get("public_key", u'')),
-            to_unicode(params.get("order_id", u'')),
-            to_unicode(params.get("type", u'')),
-            to_unicode(params.get("description", u'')),
-            to_unicode(params.get("result_url", u'')),
-            to_unicode(params.get("server_url", u''))
-        ]
-        return self._make_signature(*signature_values)
+        print base64.b64encode(json.dumps(params))
+        return self._make_signature(self._private_key, base64.b64encode(json.dumps(params)), self._private_key)
 
     def str_to_sign(self, str):
         return base64.b64encode(hashlib.sha1(str).digest())
