@@ -100,7 +100,7 @@ class LiqPay(object):
         )
         params_templ = {'data': base64.b64encode(json.dumps(params))}
         params_templ['signature'] = self._make_signature(self._private_key, params_templ['data'], self._private_key)
-        form_action_url = urljoin(self._host, 'checkout/')
+        form_action_url = urljoin(self._host, '3/checkout/')
         format_input = lambda k, v: self.INPUT_TEMPLATE.format(name=k, value=to_unicode(v))
         inputs = [format_input(k, v) for k, v in params_templ.iteritems()]
         return self.FORM_TEMPLATE.format(
