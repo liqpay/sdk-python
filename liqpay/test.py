@@ -14,7 +14,7 @@ class TestLiqPaySimple(unittest.TestCase):
 
     def test_gen_form(self):
         expected_form_out = (
-            u'<form method="post" action="https://www.liqpay.com/3/api/checkout/" accept-charset="utf-8">\n'
+            u'<form method="post" action="https://www.liqpay.com/api/3/checkout/" accept-charset="utf-8">\n'
             u'\t<input type="hidden" name="data" value="eyJwdWJsaWNfa2V5IjogIiIsICJkZXNjcmlwdGlvbiI6ICJcdTA0NDJcdTA0MzVcdTA0NDFcdTA0NDIiLCAibGFuZ3VhZ2UiOiAicnUiLCAic2FuZGJveCI6IDAsICJjdXJyZW5jeSI6ICJVQUgiLCAiYW1vdW50IjogIjM5NDAiLCAidGVzdCI6ICJjY2NjIn0="/>\n'
             u'\t<input type="hidden" name="signature" value="Zdm/xbS30v9ZTNXrLXeW9QFVxHQ="/>\n'
             u'    <input type="image" src="//static.liqpay.com/buttons/p1ru.radius.png" name="btn_text" />\n'
