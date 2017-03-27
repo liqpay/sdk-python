@@ -44,7 +44,7 @@ class LiqPay(object):
     def _make_signature(self, *args):
         joined_fields = ''.join(x for x in args)
         joined_fields = joined_fields.encode('utf-8')
-        return base64.b64encode(hashlib.sha1(joined_fields).digest())
+        return base64.b64encode(hashlib.sha1(joined_fields).digest()).decode()
 
     def _prepare_params(self, params):
         params = {} if params is None else deepcopy(params)
