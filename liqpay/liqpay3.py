@@ -83,11 +83,11 @@ class LiqPay(object):
             currency=currency if currency != 'RUR' else 'RUB',
             sandbox=int(bool(params.get('sandbox')))
         )
-        params_templ = {'data': base64.b64encode(json.dumps(params))}
+        params_templ = {'data': base64.b64encode(json.dumps(params).encode()).decode()}
         params_templ['signature'] = self._make_signature(self._private_key, params_templ['data'], self._private_key)
         form_action_url = urljoin(self._host, '3/checkout/')
         format_input = lambda k, v: self.INPUT_TEMPLATE.format(name=k, value=v)
-        inputs = [format_input(k, v) for k, v in params_templ.iteritems()]
+        inputs = [format_input(k, v) for k, v in params_templ.items()]
         return self.FORM_TEMPLATE.format(
             action=form_action_url,
             language=language,
