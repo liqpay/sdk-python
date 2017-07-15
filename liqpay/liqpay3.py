@@ -97,8 +97,9 @@ class LiqPay(object):
 
     def cnb_signature(self, params):
         params = self._prepare_params(params)
-        print(base64.b64encode(json.dumps(params)))
-        return self._make_signature(self._private_key, base64.b64encode(json.dumps(params)), self._private_key)
+
+        data_to_sign = base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
+        return self._make_signature(self._private_key, data_to_sign, self._private_key)
 
     def str_to_sign(self, str):
-        return base64.b64encode(hashlib.sha1(str).digest())
+        return base64.b64encode(hashlib.sha1(str.encode("utf-8")).digest()).decode("ascii")
