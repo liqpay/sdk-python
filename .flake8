@@ -1,0 +1,24 @@
+[flake8]
+exclude =
+	.git,
+	.idea,
+	__pycache__,
+	doc,
+	logs,
+	__init__.py,
+max-line-length = 150
+max-complexity = 10
+filename = *.py
+format = default
+inline-quotes = "
+ignore =
+	# E221 multiple spaces before operator
+	E221,
+	# whitespace before ':'
+	E203,
+	# whitespace before ')'
+	E202,
+	# multiple spaces after ','
+	E241,
+	# unexpected spaces around keyword / parameter equals
+	E251
