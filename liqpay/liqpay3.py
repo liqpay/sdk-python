@@ -25,7 +25,7 @@ class LiqPay(object):
     FORM_TEMPLATE = """\
         <form method="post" action="{action}" accept-charset="utf-8">
         \t{param_inputs}
-            <input type="image" src="//static.liqpay.com/buttons/p1{language}.radius.png" name="btn_text" />
+            <input type="image" src="//static.liqpay.ua/buttons/p1{language}.radius.png" name="btn_text" />
         </form>"""
     INPUT_TEMPLATE = "<input type='hidden' name='{name}' value='{value}'/>"
 
@@ -34,7 +34,7 @@ class LiqPay(object):
         "result_url", "server_url", "type", "signature", "language", "sandbox"
     ]
 
-    def __init__(self, public_key, private_key, host="https://www.liqpay.com/api/"):
+    def __init__(self, public_key, private_key, host="https://www.liqpay.ua/api/"):
         self._public_key = public_key
         self._private_key = private_key
         self._host = host
