@@ -82,7 +82,7 @@ class LiqPay(object):
             sandbox=int(bool(params.get("sandbox")))
         )
 
-        encoded_data = base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
+        encoded_data = self.cnb_data(params)
         params_templ = {"data": encoded_data}
 
         params_templ["signature"] = self._make_signature(self._private_key, params_templ["data"], self._private_key)
@@ -98,8 +98,12 @@ class LiqPay(object):
     def cnb_signature(self, params):
         params = self._prepare_params(params)
 
-        data_to_sign = base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
+        data_to_sign = self.cnb_data(params)
         return self._make_signature(self._private_key, data_to_sign, self._private_key)
+
+    def cnb_data(self, params):
+        params = self._prepare_params(params)
+        return base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
 
     def str_to_sign(self, str):
         return base64.b64encode(hashlib.sha1(str.encode("utf-8")).digest()).decode("ascii")
