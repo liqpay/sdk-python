@@ -110,3 +110,28 @@ class LiqPay(object):
 
     def data_to_sign(self, params):
         return base64.b64encode(json.dumps(params).encode("utf-8")).decode("ascii")
+
+    def decode_data_from_str(self, data):
+        """Decoding data that were encoded by base64.b64encode(str)
+
+        Note:
+            Often case of using is decoding data from LiqPay Callback.
+            Dict contains all information about payment.
+            More info about callback params see in documentation
+            https://www.liqpay.ua/documentation/api/callback.
+
+        Args:
+            data: json string with api params and encoded by base64.b64encode(str).
+
+        Returns:
+            Dict
+
+        Example:
+            liqpay = LiqPay(settings.LIQPAY_PUBLIC_KEY, settings.LIQPAY_PRIVATE_KEY)
+            data = request.POST.get('data')
+            response = liqpay.decode_data_from_str(data)
+            print(response)
+            {'commission_credit': 0.0, 'order_id': 'order_id_1', 'liqpay_order_id': 'T8SRXWM71509085055293216', ...}
+
+        """
+        return json.loads(base64.b64decode(data).decode('utf-8'))
