@@ -12,7 +12,7 @@ import base64
 from copy import deepcopy
 import hashlib
 import json
-from urllib.parse import urljoin
+from urllib.parse import urljoin, unquote
 
 import requests
 
@@ -134,4 +134,4 @@ class LiqPay(object):
             {'commission_credit': 0.0, 'order_id': 'order_id_1', 'liqpay_order_id': 'T8SRXWM71509085055293216', ...}
 
         """
-        return json.loads(base64.b64decode(data).decode('utf-8'))
+        return json.loads(base64.b64decode(unquote(data)).decode('utf-8'))
