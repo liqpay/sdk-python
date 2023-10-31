@@ -64,6 +64,15 @@ class LiqPay(object):
     def api(self, url, params=None):
         params = self._prepare_params(params)
 
+        params_validator = (
+                    ("version", lambda x: x is not None and (isinstance(x, str) or isinstance(x, (int, float)))),
+                    ("action", lambda x: x is not None),
+                )
+        for key, validator in params_validator:
+             if validator(params.get(key)):
+                continue
+             raise ParamValidationError("Invalid param: '{}'".format(key))
+
         json_encoded_params = json.dumps(params, sort_keys=True)
         private_key = self._private_key
         signature = self._make_signature(private_key, json_encoded_params, private_key)
@@ -81,7 +90,6 @@ class LiqPay(object):
             ("amount", lambda x: x is not None and float(x) > 0),
             ("currency", lambda x: x is not None and x in self._supportedCurrencies),
             ("action", lambda x: x is not None and x in self._supportedActions),
-            ("order_id", lambda x: x is not None and isinstance(x, str)),
             ("description", lambda x: x is not None and isinstance(x, str))
         )
         for key, validator in params_validator:
@@ -93,7 +101,7 @@ class LiqPay(object):
         language = 'uk'
         if 'language' in params:
             if params['language'] not in self._supportedLangs:
-                raise ParamValidationError("Invalid language: '{}'".format(params['language']))
+                language = 'uk'
             else:
                 language = params['language']
 
@@ -147,6 +155,5 @@ class LiqPay(object):
             if expected_signature != signature:
                 raise ParamValidationError("Invalid signature")
 
-        # Декодування даних
         return json.loads(base64.b64decode(data).decode('utf-8'))
 

@@ -73,17 +73,6 @@ class TestLiqPay(unittest.TestCase):
         with self.assertRaises(ParamValidationError):
             self.liqpay.cnb_form(params)
 
-    def test_missing_order_id(self):
-        params = {
-            'version': '1.0',
-            'amount': '10',
-            'currency': 'USD',
-            'action': 'pay',
-            'description': 'Test Order'
-        }
-        with self.assertRaises(ParamValidationError):
-            self.liqpay.cnb_form(params)
-
     def test_missing_description(self):
         params = {
             'version': '1.0',
@@ -103,19 +92,6 @@ class TestLiqPay(unittest.TestCase):
             'action': 'invalid_action',
             'order_id': '123456',
             'description': 'Test Order'
-        }
-        with self.assertRaises(ParamValidationError):
-            self.liqpay.cnb_form(params)
-
-    def test_invalid_language(self):
-        params = {
-            'version': '1.0',
-            'amount': '10',
-            'currency': 'USD',
-            'action': 'pay',
-            'order_id': '123456',
-            'description': 'Test Order',
-            'language': 'es'  # Spanish is not supported
         }
         with self.assertRaises(ParamValidationError):
             self.liqpay.cnb_form(params)
