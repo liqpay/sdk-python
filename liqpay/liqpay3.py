@@ -89,7 +89,7 @@ class LiqPay(object):
             ("version", lambda x: x is not None and isinstance(x, str)),
             ("amount", lambda x: x is not None and float(x) > 0),
             ("currency", lambda x: x is not None and x in self._supportedCurrencies),
-            ("action", lambda x: x is not None and x in self._supportedActions),
+            ("action", lambda x: x is not None),
             ("description", lambda x: x is not None and isinstance(x, str))
         )
         for key, validator in params_validator:
