@@ -69,8 +69,8 @@ Variable ``html`` will contain next html form
         biIgOiAicGF5IiwgImFtb3VudCIgOiAxLCAiY3VycmVuY3kiIDogIlVTRCIsICJkZXNjcmlwdGlv
         biIgOiAiZGVzY3JpcHRpb24gdGV4dCIsICJvcmRlcl9pZCIgOiAib3JkZXJfaWRfMSIgfQ=="/>
         <input type="hidden" name="signature" value="QvJD5u9Fg55PCx/Hdz6lzWtYwcI="/>
-        <input type="image"
-        src="//static.liqpay.ua/buttons/p1ru.radius.png"/>
+        <script type="text/javascript" src="https://static.liqpay.ua/libjs/sdk_button.js"></script>
+        <sdk-button label="Сплатити" background="#77CC5D" onClick="submit()"></sdk-button>
     </form>
 
 Example 2: Integrate Payment widget to Django

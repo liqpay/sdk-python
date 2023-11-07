@@ -65,7 +65,7 @@ class LiqPay(object):
         params = self._prepare_params(params)
 
         params_validator = (
-                    ("version", lambda x: x is not None and (isinstance(x, str) or isinstance(x, (int, float)))),
+                    ("version", lambda x: x is not None),
                     ("action", lambda x: x is not None),
                 )
         for key, validator in params_validator:
@@ -98,16 +98,12 @@ class LiqPay(object):
 
             raise ParamValidationError("Invalid param: '{}'".format(key))
 
-        language = 'uk'
+        language = params.get('language', 'uk').lower()
         if 'language' in params:
-            if params['language'] not in self._supportedLangs:
-                language = 'uk'
-            else:
-                language = params['language']
-
-        params.update(
-            language=language
-        )
+            if params['language'].lower() not in self._supportedLangs:
+                params['language'] = 'uk'
+        else:
+            pass
 
         encoded_data = self.data_to_sign(params)
 

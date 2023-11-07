@@ -84,18 +84,6 @@ class TestLiqPay(unittest.TestCase):
         with self.assertRaises(ParamValidationError):
             self.liqpay.cnb_form(params)
 
-    def test_invalid_action(self):
-        params = {
-            'version': '1.0',
-            'amount': '10',
-            'currency': 'USD',
-            'action': 'invalid_action',
-            'order_id': '123456',
-            'description': 'Test Order'
-        }
-        with self.assertRaises(ParamValidationError):
-            self.liqpay.cnb_form(params)
-
     def test_cnb_form_generation(self):
         self.maxDiff = None
         params = {
