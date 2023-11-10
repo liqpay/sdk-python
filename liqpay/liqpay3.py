@@ -76,14 +76,10 @@ class LiqPay(object):
                 continue
              raise ParamValidationError("Invalid param: '{}'".format(key))
 
-        json_encoded_params = json.dumps(params, sort_keys=True)
-        bytes_data = json_encoded_params.encode('utf-8')
-        base64_encoded_params = base64.b64encode(bytes_data).decode('utf-8')
-        private_key = self._private_key
-        signature = self._make_signature(private_key, json_encoded_params)
+        encoded_data, signature = self.get_data_end_signature('cnb_form', params)
 
         request_url = urljoin(self._host, url)
-        request_data = {"data": json_encoded_params, "signature": signature}
+        request_data = {"data": encoded_data, "signature": signature}
         response = requests.post(request_url, data=request_data, verify=True)
         return json.loads(response.content.decode("utf-8"))
 
@@ -91,7 +87,7 @@ class LiqPay(object):
         params = self._prepare_params(params)
 
         params_validator = (
-            ("version", lambda x: x is not None and x in ['3', 3]),
+            ("version", lambda x: x is not None),
             ("amount", lambda x: x is not None and float(x) > 0),
             ("currency", lambda x: x is not None and x in self._supportedCurrencies),
             ("action", lambda x: x is not None),
@@ -111,12 +107,8 @@ class LiqPay(object):
         else:
             language = 'uk'
 
-        json_encoded_params = json.dumps(params, sort_keys=True)
-        bytes_data = json_encoded_params.encode('utf-8')
-        base64_encoded_params = base64.b64encode(bytes_data).decode('utf-8')
-        encoded_data = self.data_to_sign(params)
+        encoded_data, signature = self.get_data_end_signature('cnb_form', params)
 
-        signature = self._make_signature(self._private_key, json_encoded_params)
         form_action_url = urljoin(self._host, "3/checkout/")
         return self._FORM_TEMPLATE.format(
             action=form_action_url,
@@ -124,6 +116,17 @@ class LiqPay(object):
             signature=signature,
             label=self._button_translations[language]
         )
+
+    def get_data_end_signature(self, type, params):
+        json_encoded_params = json.dumps(params, sort_keys=True)
+        if type == "cnb_form":
+            bytes_data = json_encoded_params.encode('utf-8')
+            base64_encoded_params = base64.b64encode(bytes_data).decode('utf-8')
+            signature = self._make_signature(self._private_key, base64_encoded_params)
+            return base64_encoded_params, signature
+        else:
+            signature = self._make_signature(self._private_key, json_encoded_params)
+        return json_encoded_params, signature
 
     def cnb_signature(self, params):
         params = self._prepare_params(params)

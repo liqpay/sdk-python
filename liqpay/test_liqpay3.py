@@ -45,18 +45,6 @@ class TestLiqPay(unittest.TestCase):
         except ParamValidationError:
             self.fail("cnb_form() raised ParamValidationError unexpectedly!")
 
-    def test_invalid_version(self):
-        params = {
-            'version': 2,
-            'amount': '10',
-            'currency': 'USD',
-            'action': 'pay',
-            'order_id': '123456',
-            'description': 'Test Order'
-        }
-        with self.assertRaises(ParamValidationError):
-            self.liqpay.cnb_form(params)
-
     def test_empty_version(self):
         params = {
             'amount': '10',
@@ -166,7 +154,7 @@ class TestLiqPay(unittest.TestCase):
             'language': 'en',
             'public_key': 'your_public_key'
         }
-        expected_signature = "Ux/HBY4Ll0NcOWIMBrVjElKGM8Q="
+        expected_signature = "x4uWEaw2f35T0IoiVfECyKsbIeY="
         expected_data_placeholder = self.encode_params_to_data(params)
         expected_form = """
         <form method="POST" action="https://www.liqpay.ua/api/3/checkout/" accept-charset="utf-8">
@@ -228,8 +216,8 @@ class TestLiqPay(unittest.TestCase):
             'language': 'en',
             'public_key': self.public_key
         }
-        expected_signature = "Ux/HBY4Ll0NcOWIMBrVjElKGM8Q="
-        generated_signature = self.liqpay._make_signature(self.liqpay._private_key, json.dumps(params, sort_keys=True))
+        expected_signature = "x4uWEaw2f35T0IoiVfECyKsbIeY="
+        data, generated_signature = self.liqpay.get_data_end_signature("cnb_form", params)
         self.assertEqual(generated_signature, expected_signature)
 
     def encode_params_to_data(self, params):

@@ -93,3 +93,4 @@ cached_uglify
 .idea
 
 /liqpay/liqpay_m.py
+/liqpay/index.html
