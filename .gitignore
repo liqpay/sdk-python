@@ -92,3 +92,4 @@ ENV/
 cached_uglify
 .idea
 
+/liqpay/liqpay_m.py

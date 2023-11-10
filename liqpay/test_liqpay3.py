@@ -14,7 +14,7 @@ class TestLiqPay(unittest.TestCase):
 
     def test_valid_params(self):
         params = {
-            'version': '1.0',
+            'version': 3,
             'amount': '10',
             'currency': 'USD',
             'action': 'pay',
@@ -28,9 +28,79 @@ class TestLiqPay(unittest.TestCase):
         except ParamValidationError:
             self.fail("cnb_form() raised ParamValidationError unexpectedly!")
 
+    def test_unsupported_language_defaults_to_ukrainian(self):
+        params = {
+            'version': 3,
+            'amount': '10',
+            'currency': 'USD',
+            'action': 'pay',
+            'order_id': '123456',
+            'description': 'Test Order',
+            'language': 'zz'
+        }
+        try:
+            form = self.liqpay.cnb_form(params)
+            self.assertIn('<form', form)
+            self.assertIn("Сплатити", form)
+        except ParamValidationError:
+            self.fail("cnb_form() raised ParamValidationError unexpectedly!")
+
+    def test_invalid_version(self):
+        params = {
+            'version': 2,
+            'amount': '10',
+            'currency': 'USD',
+            'action': 'pay',
+            'order_id': '123456',
+            'description': 'Test Order'
+        }
+        with self.assertRaises(ParamValidationError):
+            self.liqpay.cnb_form(params)
+
+    def test_empty_version(self):
+        params = {
+            'amount': '10',
+            'currency': 'USD',
+            'action': 'pay',
+            'order_id': '123456',
+            'description': 'Test Order'
+        }
+        with self.assertRaises(ParamValidationError):
+            self.liqpay.cnb_form(params)
+
+    def test_valid_number_version(self):
+        params = {
+            'version': 3,
+            'amount': '10',
+            'currency': 'USD',
+            'action': 'pay',
+            'order_id': '123456',
+            'description': 'Test Order'
+        }
+        try:
+            form = self.liqpay.cnb_form(params)
+            self.assertIn('<form', form)
+        except ParamValidationError:
+            self.fail("cnb_form() raised ParamValidationError unexpectedly!")
+
+    def test_valid_string_version(self):
+        params = {
+            'version': '3',
+            'amount': '10',
+            'currency': 'USD',
+            'action': 'pay',
+            'order_id': '123456',
+            'description': 'Test Order'
+        }
+        try:
+            form = self.liqpay.cnb_form(params)
+            self.assertIn('<form', form)
+        except ParamValidationError:
+            self.fail("cnb_form() raised ParamValidationError unexpectedly!")
+
     def test_invalid_currency(self):
         params = {
-            'version': '1.0',
+            'version': 3,
             'amount': '10',
             'currency': 'ABC',
             'action': 'pay',
@@ -42,7 +112,7 @@ class TestLiqPay(unittest.TestCase):
 
     def test_missing_amount(self):
         params = {
-            'version': '1.0',
+            'version': 3,
             'currency': 'USD',
             'action': 'pay',
             'order_id': '123456',
@@ -53,7 +123,7 @@ class TestLiqPay(unittest.TestCase):
 
     def test_missing_currency(self):
         params = {
-            'version': '1.0',
+            'version': 3,
             'amount': '10',
             'action': 'pay',
             'order_id': '123456',
@@ -64,7 +134,7 @@ class TestLiqPay(unittest.TestCase):
 
     def test_missing_action(self):
         params = {
-            'version': '1.0',
+            'version': 3,
             'amount': '10',
             'currency': 'USD',
             'order_id': '123456',
@@ -75,7 +145,7 @@ class TestLiqPay(unittest.TestCase):
 
     def test_missing_description(self):
         params = {
-            'version': '1.0',
+            'version': 3,
             'amount': '10',
             'currency': 'USD',
             'action': 'pay',
@@ -87,7 +157,7 @@ class TestLiqPay(unittest.TestCase):
     def test_cnb_form_generation(self):
         self.maxDiff = None
         params = {
-            'version': '1.0',
+            'version': 3,
             'amount': '10',
             'currency': 'USD',
             'action': 'pay',
@@ -96,7 +166,7 @@ class TestLiqPay(unittest.TestCase):
             'language': 'en',
             'public_key': 'your_public_key'
         }
-        expected_signature = "mOw+9wla31Q+5cR8kWk/N2XCx68="
+        expected_signature = "Ux/HBY4Ll0NcOWIMBrVjElKGM8Q="
         expected_data_placeholder = self.encode_params_to_data(params)
         expected_form = """
         <form method="POST" action="https://www.liqpay.ua/api/3/checkout/" accept-charset="utf-8">
@@ -149,7 +219,7 @@ class TestLiqPay(unittest.TestCase):
 
     def test_signature_generation(self):
         params = {
-            'version': '1.0',
+            'version': 3,
             'amount': '10',
             'currency': 'USD',
             'action': 'pay',
@@ -158,14 +228,14 @@ class TestLiqPay(unittest.TestCase):
             'language': 'en',
             'public_key': self.public_key
         }
-        expected_signature = "mOw+9wla31Q+5cR8kWk/N2XCx68="
-        generated_signature = self.liqpay._make_signature(self.liqpay._private_key, json.dumps(params, sort_keys=True),
-                                                          self.liqpay._private_key)
+        expected_signature = "Ux/HBY4Ll0NcOWIMBrVjElKGM8Q="
+        generated_signature = self.liqpay._make_signature(self.liqpay._private_key, json.dumps(params, sort_keys=True))
         self.assertEqual(generated_signature, expected_signature)
 
     def encode_params_to_data(self, params):
         json_str = json.dumps(params, sort_keys=True)
-        return base64.b64encode(json_str.encode("utf-8")).decode("ascii")
+        bytes_data = json_str.encode('utf-8')
+        return base64.b64encode(bytes_data).decode("ascii")
 
 if __name__ == '__main__':
     unittest.main()

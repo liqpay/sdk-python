@@ -52,9 +52,12 @@ class LiqPay(object):
         self._private_key = private_key
         self._host = host
 
-    def _make_signature(self, *args):
-        joined_fields = "".join(x for x in args)
-        return self.str_to_sign(joined_fields)
+    def _make_signature(self, private_key, data):
+        str_to_sign = private_key + data + private_key
+        sha1_hash = hashlib.sha1(str_to_sign.encode('utf-8')).digest()
+        signature = base64.b64encode(sha1_hash).decode('ascii')
+        return signature
+
 
     def _prepare_params(self, params):
         params = {} if params is None else deepcopy(params)
@@ -63,9 +66,9 @@ class LiqPay(object):
 
     def api(self, url, params=None):
         params = self._prepare_params(params)
-
+        print(params)
         params_validator = (
-                    ("version", lambda x: x is not None),
+                    ("version", lambda x: x is not None and x in ['3', 3]),
                     ("action", lambda x: x is not None),
                 )
         for key, validator in params_validator:
@@ -74,19 +77,21 @@ class LiqPay(object):
              raise ParamValidationError("Invalid param: '{}'".format(key))
 
         json_encoded_params = json.dumps(params, sort_keys=True)
+        bytes_data = json_encoded_params.encode('utf-8')
+        base64_encoded_params = base64.b64encode(bytes_data).decode('utf-8')
         private_key = self._private_key
-        signature = self._make_signature(private_key, json_encoded_params, private_key)
+        signature = self._make_signature(private_key, json_encoded_params)
 
         request_url = urljoin(self._host, url)
         request_data = {"data": json_encoded_params, "signature": signature}
-        response = requests.post(request_url, data=request_data, verify=False)
+        response = requests.post(request_url, data=request_data, verify=True)
         return json.loads(response.content.decode("utf-8"))
 
     def cnb_form(self, params):
         params = self._prepare_params(params)
 
         params_validator = (
-            ("version", lambda x: x is not None and isinstance(x, str)),
+            ("version", lambda x: x is not None and x in ['3', 3]),
             ("amount", lambda x: x is not None and float(x) > 0),
             ("currency", lambda x: x is not None and x in self._supportedCurrencies),
             ("action", lambda x: x is not None),
@@ -98,16 +103,20 @@ class LiqPay(object):
 
             raise ParamValidationError("Invalid param: '{}'".format(key))
 
-        language = params.get('language', 'uk').lower()
         if 'language' in params:
-            if params['language'].lower() not in self._supportedLangs:
+            language = params['language'].lower()
+            if language not in self._supportedLangs:
                 params['language'] = 'uk'
+                language = 'uk'
         else:
-            pass
+            language = 'uk'
 
+        json_encoded_params = json.dumps(params, sort_keys=True)
+        bytes_data = json_encoded_params.encode('utf-8')
+        base64_encoded_params = base64.b64encode(bytes_data).decode('utf-8')
         encoded_data = self.data_to_sign(params)
 
-        signature = self._make_signature(self._private_key, json.dumps(params, sort_keys=True), self._private_key)
+        signature = self._make_signature(self._private_key, json_encoded_params)
         form_action_url = urljoin(self._host, "3/checkout/")
         return self._FORM_TEMPLATE.format(
             action=form_action_url,
@@ -130,7 +139,9 @@ class LiqPay(object):
         return base64.b64encode(hashlib.sha1(str.encode("utf-8")).digest()).decode("ascii")
 
     def data_to_sign(self, params):
-        return base64.b64encode(json.dumps(params, sort_keys=True).encode("utf-8")).decode("ascii")
+        json_encoded_params = json.dumps(params, sort_keys=True)
+        bytes_data = json_encoded_params.encode('utf-8')
+        return base64.b64encode(bytes_data).decode('utf-8')
 
     def decode_data_from_str(self, data, signature=None):
         """Decoding data that were encoded by base64.b64encode(str)
@@ -147,7 +158,7 @@ class LiqPay(object):
 
         """
         if signature:
-            expected_signature = self._make_signature(self._private_key, base64.b64decode(data).decode('utf-8'), self._private_key)
+            expected_signature = self._make_signature(self._private_key, base64.b64decode(data).decode('utf-8'))
             if expected_signature != signature:
                 raise ParamValidationError("Invalid signature")
 
