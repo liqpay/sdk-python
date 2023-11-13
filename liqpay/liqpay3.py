@@ -68,7 +68,7 @@ class LiqPay(object):
         params = self._prepare_params(params)
         print(params)
         params_validator = (
-                    ("version", lambda x: x is not None and x in ['3', 3]),
+                    ("version", lambda x: x is not None),
                     ("action", lambda x: x is not None),
                 )
         for key, validator in params_validator:
@@ -76,7 +76,7 @@ class LiqPay(object):
                 continue
              raise ParamValidationError("Invalid param: '{}'".format(key))
 
-        encoded_data, signature = self.get_data_end_signature('cnb_form', params)
+        encoded_data, signature = self.get_data_end_signature('api', params)
 
         request_url = urljoin(self._host, url)
         request_data = {"data": encoded_data, "signature": signature}
