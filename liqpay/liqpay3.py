@@ -132,7 +132,7 @@ class LiqPay(object):
         params = self._prepare_params(params)
 
         data_to_sign = self.data_to_sign(params)
-        return self._make_signature(self._private_key, data_to_sign, self._private_key)
+        return self._make_signature(self._private_key, data_to_sign)
 
     def cnb_data(self, params):
         params = self._prepare_params(params)
