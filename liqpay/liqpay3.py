@@ -6,7 +6,7 @@ requires requests module
 """
 
 __title__ = "LiqPay Python SDK"
-__version__ = "1.0"
+__version__ = "1.1"
 
 import base64
 from copy import deepcopy
@@ -23,11 +23,10 @@ class ParamValidationError(Exception):
 
 class LiqPay(object):
     _supportedCurrencies = ['EUR', 'USD', 'UAH']
-    _supportedLangs = ['uk', 'ru', 'en']
+    _supportedLangs = ['uk', 'en']
     _supportedActions = ['pay', 'hold', 'subscribe', 'paydonate']
 
     _button_translations = {
-        'ru': 'Оплатить',
         'uk': 'Сплатити',
         'en': 'Pay'
     }
@@ -52,11 +51,10 @@ class LiqPay(object):
         self._private_key = private_key
         self._host = host
 
-    def _make_signature(self, private_key, data):
-        str_to_sign = private_key + data + private_key
-        sha1_hash = hashlib.sha1(str_to_sign.encode('utf-8')).digest()
-        signature = base64.b64encode(sha1_hash).decode('ascii')
-        return signature
+    def _make_signature(self, *args):
+        joined_fields = "".join(x for x in args)
+        joined_fields = joined_fields.encode("utf-8")
+        return base64.b64encode(hashlib.sha1(joined_fields).digest()).decode("ascii")
 
 
     def _prepare_params(self, params):
@@ -66,9 +64,8 @@ class LiqPay(object):
 
     def api(self, url, params=None):
         params = self._prepare_params(params)
-        print(params)
         params_validator = (
-                    ("version", lambda x: x is not None and x in ['3', 3]),
+                    ("version", lambda x: x is not None),
                     ("action", lambda x: x is not None),
                 )
         for key, validator in params_validator:
@@ -122,10 +119,10 @@ class LiqPay(object):
         if type == "cnb_form":
             bytes_data = json_encoded_params.encode('utf-8')
             base64_encoded_params = base64.b64encode(bytes_data).decode('utf-8')
-            signature = self._make_signature(self._private_key, base64_encoded_params)
+            signature = self._make_signature(self._private_key, base64_encoded_params, self._private_key)
             return base64_encoded_params, signature
         else:
-            signature = self._make_signature(self._private_key, json_encoded_params)
+            signature = self._make_signature(self._private_key, json_encoded_params, self._private_key)
         return json_encoded_params, signature
 
     def cnb_signature(self, params):
@@ -161,7 +158,7 @@ class LiqPay(object):
 
         """
         if signature:
-            expected_signature = self._make_signature(self._private_key, base64.b64decode(data).decode('utf-8'))
+            expected_signature = self._make_signature(self._private_key, base64.b64decode(data).decode('utf-8'), self._private_key)
             if expected_signature != signature:
                 raise ParamValidationError("Invalid signature")
 
