@@ -8,7 +8,7 @@
 :Web: https://www.liqpay.ua/
 :Download: https://pypi.python.org/pypi/liqpay-python
 :Source: https://github.com/liqpay/sdk-python
-:Documentation: https://www.liqpay.ua/documentation/en/
+:Documentation: https://liqpay.ua/doc
 :Keywords: liqpay, privat24, privatbank, python, internet acquiring, P2P payments, two-step payments
 
 
